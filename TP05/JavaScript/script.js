@@ -1,20 +1,29 @@
-function analisaXML(param) {
-    var xmlDoc = new ActiveXObject("Msxml2.DOMDocument.3.0")
-    xmlDoc.async = "false"
-    xmlDoc.load(document.all("arqXML").value)
-    if (xmlDoc.parseError.errorCode != 0) {
-        msg = "Código do Erro: " + xmlDoc.parseError.errorCode + "\n"
-        msg = msg + "Linha do Erro: " + xmlDoc.parseError.line + "\n"
-        msg = msg + "Posição do Erro: " + xmlDoc.parseError.linepos + "\n"
-        msg = msg + "Descrição do Erro: " + xmlDoc.parseError.reason
-        alert(msg)
+document.getElementById('fileInput').addEventListener('change', function (event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+
+        // Quando o arquivo é carregado, tentar validar o XML
+        reader.onload = function (e) {
+            const xmlString = e.target.result;
+            validarXML(xmlString);
+        };
+
+        reader.readAsText(file);
     }
-    else {
-        if (xmlDoc.validate() == 0)
-            alert("XML bem formado e válido.")
-        else {
-            msg = "XML bem formado mas inválido " + "\n"
-            alert(msg + "Erro - " + xmlDoc.validate().reason)
-        }
+});
+
+function validarXML(xmlString) {
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(xmlString, "application/xml");
+    const mensagemDiv = document.getElementById('mensagem');
+
+    // Verifica se há algum erro no XML
+    const erro = xmlDoc.getElementsByTagName("parsererror");
+
+    if (erro.length > 0) {
+        mensagemDiv.innerHTML = `<p style="color: red;">Erro encontrado no XML: ${erro[0].textContent}</p>`;
+    } else {
+        mensagemDiv.innerHTML = `<p style="color: green;">O XML está bem formado!</p>`;
     }
 }
